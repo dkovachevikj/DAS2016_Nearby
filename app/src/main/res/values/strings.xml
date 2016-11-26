@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ConnectionTest</string>
+    <string name="check_button_name">Check</string>
+    <string name="location_button_name">Get location</string>
+</resources>
