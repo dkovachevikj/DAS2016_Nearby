@@ -8,12 +8,12 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:layout_height="240dp" />
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="250dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/map"
@@ -28,13 +28,18 @@
             android:padding="5dp"
             android:textSize="25sp" />
 
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/detailsRatingBar" />
+
         <TextView
             android:text="Address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/placeDetailsAddress"
             android:padding="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             android:layout_marginBottom="5dp" />
 
         <TextView
@@ -52,24 +57,29 @@
             android:layout_height="wrap_content"
             android:id="@+id/placeDetailsWebsite"
             android:padding="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginTop="5dp" />
 
-        <TextView
-            android:text="Types"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/placeDetailsTypes"
-            android:padding="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/placeDetailsLinearLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <Button
             android:text="Get Directions"
-            android:layout_width="match_parent"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
-            android:id="@+id/placeDetailsDirections"
-            android:layout_marginTop="30dp" />
+            android:id="@+id/detailsGetDirections" />
+
+        <Button
+            android:text="Reviews"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/detailsReviewsButton" />
     </LinearLayout>
 
 </RelativeLayout>

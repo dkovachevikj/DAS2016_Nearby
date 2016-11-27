@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:id="@+id/reviewLinearLayout">
+
+        <TextView
+            android:text="John Smith"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reviewUserName"
+            android:textSize="25dp"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:padding="5dp" />
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:id="@+id/reviewRatingBar" />
+
+        <TextView
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reviewDesc"
+            android:textSize="18sp"
+            android:padding="5dp" />
+    </LinearLayout>
+</LinearLayout>

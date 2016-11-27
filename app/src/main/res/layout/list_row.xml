@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:padding="5dp">
+
+        <TextView
+            android:text="Title"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:id="@+id/listLocationTitle"
+            android:layout_weight="0.01"
+            android:textSize="20sp"
+            android:padding="5dp"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:text="distance"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:id="@+id/listLocationDistance"
+            android:textAlignment="textEnd" />
+    </LinearLayout>
+</LinearLayout>

@@ -54,7 +54,7 @@ public class LocationsListActivity extends AppCompatActivity {
             for (int i=0; i<locationsArray.length; i++) {
                 locationsArray[i] = locationsList.get(i);
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.activity_locations_list, R.id.textView, locationsArray);
+            ArrayAdapter<String> adapter = new LocationsListAdapter(this, locationsArray);
             locationsListView = (ListView) findViewById(R.id.locations_list);
             locationsListView.setAdapter(adapter);
 

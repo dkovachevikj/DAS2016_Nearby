@@ -66,8 +66,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GridView grid;
     private ArrayList<GridItem> items;
 
-    private static String[] locationNames = {"Bank", "Cafe", "Restaurant", "Hotels", "Bar", "Store", "Night_Club"};
-    private static int[] locationImages = {R.mipmap.bank_img, R.mipmap.caffee_img, R.mipmap.restaurant_img, R.mipmap.hotels_img, R.mipmap.cocktail_bar_img, R.mipmap.market_store_img, R.mipmap.night_club_img};
+    private static String[] locationNames = {"Bank", "Cafe", "Restaurant", "Hotels", "Bar", "Store", "Night_Club", "ATM", "Bakery", "Hospital", "Lawyer", "Gas_station"};
+    private static int[] locationImages = {R.mipmap.bank_img, R.mipmap.caffee_img, R.mipmap.restaurant_img, R.mipmap.hotels_img,
+            R.mipmap.cocktail_bar_img, R.mipmap.market_store_img, R.mipmap.night_club_img, R.mipmap.atm_img, R.mipmap.bakery_img, R.mipmap.hospital_img, R.mipmap.lawyer_img, R.mipmap.gas_station_img};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,9 +88,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d("onCreate", "Google Play Services available. Continuing.");
         }
 
+        buildGoogleApiClient();
+
         grid = (GridView) findViewById(R.id.gridView);
         items = new ArrayList<GridItem>();
-        for(int i=0; i<7; i++) {
+        for(int i=0; i<12; i++) {
             GridItem tempItem = new GridItem(locationImages[i], locationNames[i]);
             items.add(tempItem);
         }
@@ -122,25 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-
-        LocationManager locManager = (LocationManager)getSystemService(this.LOCATION_SERVICE);
-
-        boolean network_enabled = locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        Location location;
-
-        if(network_enabled){
-
-            location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            if(location!=null){
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-            }
-        }
-
-
-        buildGoogleApiClient();
+        requestUserLocation();
         setGridItemListener();
 
     }
@@ -162,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Toast.makeText(MainActivity.this, "Not connected!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Toast.makeText(MainActivity.this, "Longitude: " + longitude + ", Latitude: " + latitude, Toast.LENGTH_SHORT).show();
                 requestUserLocation();
                 String type = item.getTitle().toLowerCase();
                 build_retrofit_and_get_response(type);
@@ -191,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             return;
         }
-        lm.requestLocationUpdates("gps", 5000, 5, listener);
+        lm.requestLocationUpdates("gps", 500, 0, listener);
     }
 
     @Override
@@ -225,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         RetrofitMaps service = retrofit.create(RetrofitMaps.class);
 
-        Call<Example> call = service.getNearbyPlaces(type, latitude + "," + longitude, PROXIMITY_RADIUS);
+        Call<Example> call = service.getNearbyPlaces(type, 42 + "," + 21.4, PROXIMITY_RADIUS);
 
         call.enqueue(new Callback<Example>() {
             @Override
@@ -321,5 +307,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
 
     }
+
 }
 

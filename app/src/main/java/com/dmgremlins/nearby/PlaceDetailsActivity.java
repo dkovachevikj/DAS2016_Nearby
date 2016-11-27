@@ -1,12 +1,19 @@
 package com.dmgremlins.nearby;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.dmgremlins.nearby.POJO.Result;
@@ -28,6 +35,7 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResult;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.PlacesOptions;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,11 +58,15 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
     PendingResult<PlaceBuffer> placeResult;
     private String placeId;
 
+    Button reviewsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_details);
+
+        reviewsButton = (Button) findViewById(R.id.detailsReviewsButton);
+        setReviewsButtonListener();
 
         placeId = getIntent().getExtras().getString("id");
         buildGoogleApiClient();
@@ -72,18 +84,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
                 if (places.getStatus().isSuccess() && places.getCount() > 0) {
                     place = places.get(0);
                     Log.i(TAG, "Place found: " + place.getName());
-                    TextView title = (TextView) findViewById(R.id.placeDetailsTitle);
-                    TextView address = (TextView) findViewById(R.id.placeDetailsAddress);
-                    TextView phone = (TextView) findViewById(R.id.placeDetailsPhone);
-                    if(place.getName() != null) {
-                        title.setText(place.getName());
-                    }
-                    if(place.getAddress() != null) {
-                        address.setText(place.getAddress());
-                    }
-                    if(place.getPhoneNumber() != null) {
-                        phone.setText(place.getPhoneNumber());
-                    }
+                    setFields();
+                    updateMap();
                 } else {
                     Log.e(TAG, "Place not found");
                 }
@@ -91,19 +93,46 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
             }
         });
 
-        if(place != null) {
+    }
+
+    private void setReviewsButtonListener() {
+        reviewsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PlaceDetailsActivity.this, ReviewsListActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void setFields() {
+        if (place != null) {
             TextView title = (TextView) findViewById(R.id.placeDetailsTitle);
             TextView address = (TextView) findViewById(R.id.placeDetailsAddress);
             TextView phone = (TextView) findViewById(R.id.placeDetailsPhone);
-            if(place.getName() != null) {
+            TextView website = (TextView) findViewById(R.id.placeDetailsWebsite);
+            RatingBar ratingBar = (RatingBar) findViewById(R.id.detailsRatingBar);
+            if (place.getName() != null) {
                 title.setText(place.getName());
+            } else {
+                title.setText("n/a");
             }
-            if(place.getAddress() != null) {
+            if (place.getAddress() != null && !(place.getAddress().toString().compareTo("") == 0)) {
                 address.setText(place.getAddress());
+            } else {
+                address.setText("n/a");
             }
-            if(place.getPhoneNumber() != null) {
+            if (place.getPhoneNumber() != null && !(place.getPhoneNumber().toString().compareTo("") == 0)) {
                 phone.setText(place.getPhoneNumber());
+            } else {
+                phone.setText("n/a");
             }
+            if (place.getWebsiteUri() != null && !(place.getWebsiteUri().toString().compareTo("") == 0)) {
+                website.setText(place.getWebsiteUri().toString());
+            } else {
+                website.setText("n/a");
+            }
+            ratingBar.setRating(place.getRating());
         }
     }
 
@@ -134,6 +163,26 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    private void updateMap() {
+        if (place != null) {
+            LatLng placeLatLng = place.getLatLng();
+            mMap.addMarker(new MarkerOptions().position(placeLatLng).title(place.getName().toString()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLatLng, 14.0f));
+            mMap.getMaxZoomLevel();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+        }
     }
 
     /**
