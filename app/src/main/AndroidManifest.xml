@@ -11,7 +11,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo_img"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -51,6 +51,10 @@
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
 
         <activity android:name=".ReviewsListActivity" android:label="Reviews">
+
+        </activity>
+
+        <activity android:name=".GetDirectionsActivity" android:label="Get Directions">
 
         </activity>
 

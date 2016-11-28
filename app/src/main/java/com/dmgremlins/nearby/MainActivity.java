@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Toast.makeText(MainActivity.this, "Not connected!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Toast.makeText(MainActivity.this, "Longitude: " + longitude + ", Latitude: " + latitude, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Longitude: " + longitude + ", Latitude: " + latitude, Toast.LENGTH_SHORT).show();
                 requestUserLocation();
                 String type = item.getTitle().toLowerCase();
                 build_retrofit_and_get_response(type);
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         RetrofitMaps service = retrofit.create(RetrofitMaps.class);
 
-        Call<Example> call = service.getNearbyPlaces(type, 42 + "," + 21.4, PROXIMITY_RADIUS);
+        Call<Example> call = service.getNearbyPlaces(type, 42.004408 + "," + 21.409509, PROXIMITY_RADIUS);
 
         call.enqueue(new Callback<Example>() {
             @Override

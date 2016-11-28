@@ -59,6 +59,9 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
     private String placeId;
 
     Button reviewsButton;
+    Button getDirectionsButton;
+    LatLng placeLatLng;
+    String placeName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +69,9 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         setContentView(R.layout.activity_place_details);
 
         reviewsButton = (Button) findViewById(R.id.detailsReviewsButton);
+        getDirectionsButton = (Button) findViewById(R.id.detailsGetDirections);
         setReviewsButtonListener();
+        setGetDirectionsButtonListener();
 
         placeId = getIntent().getExtras().getString("id");
         buildGoogleApiClient();
@@ -84,6 +89,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
                 if (places.getStatus().isSuccess() && places.getCount() > 0) {
                     place = places.get(0);
                     Log.i(TAG, "Place found: " + place.getName());
+                    placeLatLng = place.getLatLng();
+                    placeName = place.getName().toString();
                     setFields();
                     updateMap();
                 } else {
@@ -93,6 +100,20 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
             }
         });
 
+    }
+
+    private void setGetDirectionsButtonListener() {
+        getDirectionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(place != null) {
+                    Intent intent = new Intent(PlaceDetailsActivity.this, GetDirectionsActivity.class);
+                    intent.putExtra("latlng", placeLatLng);
+                    intent.putExtra("name", placeName);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void setReviewsButtonListener() {
