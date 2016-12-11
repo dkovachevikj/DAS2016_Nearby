@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DAS2016_Nearby.iml" filepath="$PROJECT_DIR$/DAS2016_Nearby.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqljdbc/sqljdbc.iml" filepath="$PROJECT_DIR$/sqljdbc/sqljdbc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sqljdbc4/sqljdbc4.iml" filepath="$PROJECT_DIR$/sqljdbc4/sqljdbc4.iml" />
     </modules>
   </component>
 </project>
