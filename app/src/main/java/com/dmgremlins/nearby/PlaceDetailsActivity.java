@@ -60,6 +60,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
 
     Button reviewsButton;
     Button getDirectionsButton;
+    Button writeReviewButton;
     LatLng placeLatLng;
     String placeName;
 
@@ -70,8 +71,10 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
 
         reviewsButton = (Button) findViewById(R.id.detailsReviewsButton);
         getDirectionsButton = (Button) findViewById(R.id.detailsGetDirections);
+        writeReviewButton = (Button) findViewById(R.id.writeReviewButton);
         setReviewsButtonListener();
         setGetDirectionsButtonListener();
+        setWriteReviewButtonListener();
 
         placeId = getIntent().getExtras().getString("id");
         buildGoogleApiClient();
@@ -100,6 +103,16 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
             }
         });
 
+    }
+
+    private void setWriteReviewButtonListener() {
+        writeReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PlaceDetailsActivity.this, WriteReviewActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void setGetDirectionsButtonListener() {
