@@ -1,1 +1,1 @@
-include ':app', ':sqljdbc4', ':sqljdbc'
+include ':app', ':sqljdbc4', ':sqljdbc', ':jtds-1.2.5', ':jtds-1.3.1'

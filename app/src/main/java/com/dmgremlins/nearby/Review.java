@@ -1,10 +1,12 @@
 package com.dmgremlins.nearby;
 
+import java.io.Serializable;
+
 /**
  * Created by User on 11/28/2016.
  */
 
-public class Review {
+public class Review implements Serializable{
 
     private String userName;
     private float rating;

@@ -10,6 +10,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/jtds-1.2.5" />
+            <option value="$PROJECT_DIR$/jtds-1.3.1" />
             <option value="$PROJECT_DIR$/sqljdbc" />
             <option value="$PROJECT_DIR$/sqljdbc4" />
           </set>
