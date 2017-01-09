@@ -16,6 +16,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.games.event.Event;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionApi;
 
@@ -37,11 +38,14 @@ public class LocationsListActivity extends AppCompatActivity {
 
     ListView locationsListView;
     private HashMap<String, String> locations;
+    private EventHandler eventHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locations_list);
+        eventHandler = EventHandler.getInstance();
+        eventHandler.setActivity(LocationsListActivity.this);
         locations = new HashMap<>();
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -68,10 +72,11 @@ public class LocationsListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String title = (String) parent.getItemAtPosition(position);
                 String idString = locations.get(title);
-                Intent intent = new Intent(LocationsListActivity.this, PlaceDetailsActivity.class);
+                eventHandler.getPlaceDetails(idString);
+                /** Intent intent = new Intent(LocationsListActivity.this, PlaceDetailsActivity.class);
                 intent.putExtra("id", idString);
-                startActivity(intent);
-            }
+                startActivity(intent); **/
+                 }
         });
     }
 

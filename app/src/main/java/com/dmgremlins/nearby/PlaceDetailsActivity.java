@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dmgremlins.nearby.POJO.Result;
 import com.google.android.gms.appindexing.Action;
@@ -24,6 +25,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.event.Event;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AddPlaceRequest;
@@ -44,25 +46,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class PlaceDetailsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+public class PlaceDetailsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "PlaceDetailsActivity";
 
     private GoogleMap mMap;
-    private GoogleApiClient mGoogleApiClient;
-
-    private Place place;
-    PendingResult<PlaceBuffer> placeResult;
-    private String placeId;
 
     Button reviewsButton;
     Button getDirectionsButton;
     Button writeReviewButton;
     LatLng placeLatLng;
-    String placeName;
+
+    private EventHandler eventHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,41 +71,24 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         setGetDirectionsButtonListener();
         setWriteReviewButtonListener();
 
-        placeId = getIntent().getExtras().getString("id");
-        buildGoogleApiClient();
+        eventHandler = EventHandler.getInstance();
+        eventHandler.setActivity(PlaceDetailsActivity.this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        placeResult = Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId);
-        placeResult.setResultCallback(new ResultCallback<PlaceBuffer>() {
-            @Override
-            public void onResult(PlaceBuffer places) {
-                Log.i(TAG, "Testing");
-                if (places.getStatus().isSuccess() && places.getCount() > 0) {
-                    place = places.get(0);
-                    Log.i(TAG, "Place found: " + place.getName());
-                    placeLatLng = place.getLatLng();
-                    placeName = place.getName().toString();
-                    setFields();
-                    updateMap();
-                } else {
-                    Log.e(TAG, "Place not found");
-                }
-                places.release();
-            }
-        });
-
+        setFields();
+        placeLatLng = (LatLng) getIntent().getExtras().get("latLng");
+        Toast.makeText(this, placeLatLng.latitude + " " + placeLatLng.longitude, Toast.LENGTH_SHORT).show();
     }
 
     private void setWriteReviewButtonListener() {
         writeReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PlaceDetailsActivity.this, WriteReviewActivity.class);
-                startActivity(intent);
+                eventHandler.addReview();
             }
         });
     }
@@ -119,11 +97,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         getDirectionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(place != null) {
-                    Intent intent = new Intent(PlaceDetailsActivity.this, GetDirectionsActivity.class);
-                    intent.putExtra("latlng", placeLatLng);
-                    intent.putExtra("name", placeName);
-                    startActivity(intent);
+                if(placeLatLng != null) {
+                    eventHandler.getDirections(placeLatLng, getIntent().getExtras().getString("name"));
                 }
             }
         });
@@ -133,51 +108,22 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         reviewsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PlaceDetailsActivity.this, ReviewsListActivity.class);
-                startActivity(intent);
+                eventHandler.getReviews("");
             }
         });
     }
 
     private void setFields() {
-        if (place != null) {
-            TextView title = (TextView) findViewById(R.id.placeDetailsTitle);
-            TextView address = (TextView) findViewById(R.id.placeDetailsAddress);
-            TextView phone = (TextView) findViewById(R.id.placeDetailsPhone);
-            TextView website = (TextView) findViewById(R.id.placeDetailsWebsite);
-            RatingBar ratingBar = (RatingBar) findViewById(R.id.detailsRatingBar);
-            if (place.getName() != null) {
-                title.setText(place.getName());
-            } else {
-                title.setText("n/a");
-            }
-            if (place.getAddress() != null && !(place.getAddress().toString().compareTo("") == 0)) {
-                address.setText(place.getAddress());
-            } else {
-                address.setText("n/a");
-            }
-            if (place.getPhoneNumber() != null && !(place.getPhoneNumber().toString().compareTo("") == 0)) {
-                phone.setText(place.getPhoneNumber());
-            } else {
-                phone.setText("n/a");
-            }
-            if (place.getWebsiteUri() != null && !(place.getWebsiteUri().toString().compareTo("") == 0)) {
-                website.setText(place.getWebsiteUri().toString());
-            } else {
-                website.setText("n/a");
-            }
-            ratingBar.setRating(place.getRating());
-        }
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Places.PLACE_DETECTION_API)
-                .addApi(Places.GEO_DATA_API)
-                .build();
-        mGoogleApiClient.connect();
+        TextView title = (TextView) findViewById(R.id.placeDetailsTitle);
+        TextView address = (TextView) findViewById(R.id.placeDetailsAddress);
+        TextView phone = (TextView) findViewById(R.id.placeDetailsPhone);
+        TextView website = (TextView) findViewById(R.id.placeDetailsWebsite);
+        RatingBar ratingBar = (RatingBar) findViewById(R.id.detailsRatingBar);
+        title.setText(getIntent().getExtras().getString("name"));
+        address.setText(getIntent().getExtras().getString("address"));
+        phone.setText(getIntent().getExtras().getString("phoneNumber"));
+        website.setText(getIntent().getExtras().getString("website"));
+        ratingBar.setRating(getIntent().getExtras().getFloat("rating"));
     }
 
     /**
@@ -192,17 +138,15 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        updateMap();
     }
 
     private void updateMap() {
-        if (place != null) {
-            LatLng placeLatLng = place.getLatLng();
-            mMap.addMarker(new MarkerOptions().position(placeLatLng).title(place.getName().toString()));
+            mMap.addMarker(new MarkerOptions().position(placeLatLng).title(""));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLatLng, 14.0f));
             mMap.getMaxZoomLevel();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -216,7 +160,6 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
                 return;
             }
             mMap.setMyLocationEnabled(true);
-        }
     }
 
     /**
@@ -233,34 +176,5 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
                 .setObject(object)
                 .setActionStatus(Action.STATUS_TYPE_COMPLETED)
                 .build();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
     }
 }
