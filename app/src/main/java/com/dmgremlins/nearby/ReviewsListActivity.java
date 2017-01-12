@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -52,12 +50,12 @@ public class ReviewsListActivity extends AppCompatActivity {
 
         placeId = getIntent().getExtras().getString("id");
 
-        new TestConnection(this).getReviews();
+        new DBAccessPoint(this).getReviews();
         Bundle extras=getIntent().getExtras();
        /* if(extras!=null) {
             pomosna = (ArrayList<Review>) extras.get("Reviews");
 
-            //pomosna=new TestConnection(this).getReviews();
+            //pomosna=new DBAccessPoint(this).getReviews();
             reviews = new Review[pomosna.size()];
             for(int i = 0; i < pomosna.size(); i++) {
                 //String userName = "John Smith";

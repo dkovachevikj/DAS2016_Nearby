@@ -1,5 +1,6 @@
 package com.dmgremlins.nearby;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,9 +9,8 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
-
-import javax.xml.datatype.Duration;
 
 /**
  * Created by User on 12/11/2016.
@@ -19,21 +19,34 @@ import javax.xml.datatype.Duration;
 public class WriteReviewActivity extends AppCompatActivity{
 
     private EditText reviewText;
-    private Button sendReviewButton;
     private String placeId;
+    private EditText usernameText;
+    private RatingBar rating;
+    private Button sendReview;
+    private int reviewWordCount;
+    private Activity activity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write_review);
+        activity=this;
 
         placeId = getIntent().getExtras().getString("id");
 
         reviewText = (EditText) findViewById(R.id.reviewEditText);
-        sendReviewButton = (Button) findViewById(R.id.sendReviewButton);
-
+        usernameText = (EditText) findViewById(R.id.usernameEditText);
+        rating= (RatingBar) findViewById(R.id.ratingBar2);
+        sendReview=(Button) findViewById(R.id.sendReviewButton);
         setReviewTextTextChangedListener();
-        setSendReviewButtonListener();
+
+        sendReview.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                new DBAccessPoint(activity).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString());
+                Toast.makeText(WriteReviewActivity.this, "REVIEW SAVED!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setReviewTextTextChangedListener() {
@@ -56,14 +69,4 @@ public class WriteReviewActivity extends AppCompatActivity{
             }
         });
     }
-
-    private void setSendReviewButtonListener() {
-        sendReviewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
 }
