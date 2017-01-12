@@ -52,7 +52,7 @@ private class WorkerThread extends AsyncTask<String,Void,Void> {
             con = DriverManager.getConnection(connectionUrl);
 
             // Create and execute an SQL statement that returns some data.
-            String SQL = "SELECT * FROM REVIEWS";
+            String SQL = "SELECT * FROM REVIEWS WHERE PLACEID='"+params[0]+"'";
             stmt = con.createStatement();
             rs = stmt.executeQuery(SQL);
 
@@ -130,7 +130,7 @@ private class WorkerThread extends AsyncTask<String,Void,Void> {
 
                 // Create and execute an SQL statement that returns some data.
                 String sql = "INSERT INTO REVIEWS " +
-                        "VALUES('"+params[0]+"',"+Float.valueOf(params[1])+",'"+params[2]+"','FROM')";
+                        "VALUES('"+params[0]+"',"+Float.valueOf(params[1])+",'"+params[2]+"', '"+params[3]+"')";
                 stmt.executeUpdate(sql);
 
             } catch(SQLException se){
@@ -161,9 +161,9 @@ private class WorkerThread extends AsyncTask<String,Void,Void> {
             super.onPostExecute(aVoid);
         }
     }
-    public void getReviews(){
-        new WorkerThread().execute("1234");
+    public void getReviews(String placeID){
+        new WorkerThread().execute(placeID);
     }
-    public void insertReview(String username, float rating, String description){ new InsertThread().execute(username,String.format("%f",rating),description);}
+    public void insertReview(String username, float rating, String description, String placeID){ new InsertThread().execute(username,String.format("%f",rating),description,placeID);}
 }
 

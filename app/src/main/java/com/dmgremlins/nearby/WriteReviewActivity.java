@@ -43,7 +43,7 @@ public class WriteReviewActivity extends AppCompatActivity{
         sendReview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                new DBAccessPoint(activity).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString());
+                new DBAccessPoint(activity).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString(),placeId);
                 Toast.makeText(WriteReviewActivity.this, "REVIEW SAVED!", Toast.LENGTH_SHORT).show();
             }
         });

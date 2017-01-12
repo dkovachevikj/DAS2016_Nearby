@@ -50,7 +50,7 @@ public class ReviewsListActivity extends AppCompatActivity {
 
         placeId = getIntent().getExtras().getString("id");
 
-        new DBAccessPoint(this).getReviews();
+        new DBAccessPoint(this).getReviews(placeId);
         Bundle extras=getIntent().getExtras();
        /* if(extras!=null) {
             pomosna = (ArrayList<Review>) extras.get("Reviews");
