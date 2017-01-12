@@ -34,11 +34,7 @@ private class WorkerThread extends AsyncTask<String,Void,Void> {
 
     @Override
     protected Void doInBackground(String... params) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         Log.d("GetInfoByName",params[0]);
         ArrayList<Review> reviews = new ArrayList<Review>();
         int i = 0;

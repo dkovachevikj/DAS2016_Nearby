@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,16 +19,21 @@ import javax.xml.datatype.Duration;
 public class WriteReviewActivity extends AppCompatActivity{
 
     private EditText reviewText;
-    private int reviewWordCount;
+    private Button sendReviewButton;
+    private String placeId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write_review);
 
-        reviewWordCount = 0;
+        placeId = getIntent().getExtras().getString("id");
+
         reviewText = (EditText) findViewById(R.id.reviewEditText);
+        sendReviewButton = (Button) findViewById(R.id.sendReviewButton);
+
         setReviewTextTextChangedListener();
+        setSendReviewButtonListener();
     }
 
     private void setReviewTextTextChangedListener() {
@@ -38,13 +45,22 @@ public class WriteReviewActivity extends AppCompatActivity{
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if((++reviewWordCount) >= 100) {
+                if(s.length() >= 100) {
                     Toast.makeText(WriteReviewActivity.this, "You have reached the limit", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    private void setSendReviewButtonListener() {
+        sendReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
             }
         });

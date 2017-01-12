@@ -2,10 +2,15 @@ package com.dmgremlins.nearby;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -14,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dmgremlins.nearby.POJO.Example;
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +35,20 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -42,7 +62,7 @@ import static android.content.Context.LOCATION_SERVICE;
  * Created by User on 1/9/2017.
  */
 
-public class EventHandler implements OnMapReadyCallback,
+public class EventHandler implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -60,6 +80,15 @@ public class EventHandler implements OnMapReadyCallback,
     private int LOCATION_REQUEST_CODE = 10;
     private int PROXIMITY_RADIUS = 5000;
     private final String TAG = "EventHandler";
+    private String currentPlaceID;
+    /** private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context, "Location acquired", Toast.LENGTH_SHORT).show();
+            latitude = intent.getExtras().getDouble("latitude");
+            longitude = intent.getExtras().getDouble("longitude");
+        }
+    }; **/
 
     public static EventHandler getInstance() {
         if(eventHandler == null) {
@@ -69,50 +98,14 @@ public class EventHandler implements OnMapReadyCallback,
     }
 
     public void setActivity(Activity activity) {
+        /** if(this.activity == null) {
+            activity.startService(new Intent(activity.getApplicationContext(), LocationService.class));
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("UpdateLocation");
+            activity.registerReceiver(broadcastReceiver, filter);
+            Log.d(TAG,"Broadcast registered");
+        } **/
         this.activity = activity;
-    }
-
-    private void setUpConnection() {
-        cd = new ConnectionDetector(activity);
-        lm = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-
-        listener = new android.location.LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                activity.startActivity(intent);
-            }
-        };
-
-        requestUserLocation();
-    }
-
-    private void requestUserLocation() {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                activity.requestPermissions(new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET
-                }, LOCATION_REQUEST_CODE);
-            }
-            return;
-        }
-        lm.requestLocationUpdates("gps", 500, 0, listener);
     }
 
     protected synchronized void buildGoogleApiClient(int type) {
@@ -209,6 +202,7 @@ public class EventHandler implements OnMapReadyCallback,
                     } else {
                         phoneNumber = place.getPhoneNumber().toString();
                     }
+                    currentPlaceID = place.getId();
                     intent.putExtra("latLng", place.getLatLng());
                     intent.putExtra("name", placeName);
                     intent.putExtra("address", address);
@@ -227,19 +221,28 @@ public class EventHandler implements OnMapReadyCallback,
         });
     }
 
-    public void getReviews(String id) {
+    public void getReviews() {
         Intent intent = new Intent(activity, ReviewsListActivity.class);
+        intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
     }
 
     public void addReview() {
         Intent intent = new Intent(activity, WriteReviewActivity.class);
+        intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
     }
 
-    public void getDirections(LatLng latLng, String name) {
+    public void getDirections(LatLng user, LatLng place, String name) {
         Intent intent = new Intent(activity, GetDirectionsActivity.class);
-        intent.putExtra("latlng", latLng);
+        String url = getDirectionsUrl(user, place);
+
+        DownloadTask downloadTask = new DownloadTask();
+
+        // Start downloading json data from Google Directions API
+        downloadTask.execute(url);
+        intent.putExtra("userLatLng", user);
+        intent.putExtra("placeLatLng", place);
         intent.putExtra("name", name);
         activity.startActivity(intent);
     }
@@ -264,8 +267,174 @@ public class EventHandler implements OnMapReadyCallback,
 
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
+    private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
+
+        return url;
+    }
+
+    private String downloadUrl(String strUrl) throws IOException {
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(strUrl);
+
+            // Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        } catch (Exception e) {
+            Toast.makeText(activity, "Error while taking directions", Toast.LENGTH_SHORT);
+        } finally {
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    private class DownloadTask extends AsyncTask<String, Void, String> {
+
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+            // For storing data from web service
+            String data = "";
+
+            try {
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+        // doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+        }
+    }
+
+
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+            String distance = "";
+            String duration = "";
+
+            if (result.size() < 1) {
+                Toast.makeText(activity, "No Points", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Traversing through all the routes
+            for (int i = 0; i < result.size(); i++) {
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
+
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
+
+                    if (j == 0) {    // Get distance from the list
+                        distance = (String) point.get("distance");
+                        continue;
+                    } else if (j == 1) { // Get duration from the list
+                        duration = (String) point.get("duration");
+                        continue;
+                    }
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(2);
+                lineOptions.color(Color.RED);
+            }
+
+            String text = "Distance:" + distance + ", Duration:" + duration;
+            Intent intent = new Intent();
+            intent.setAction("Polyline");
+            intent.putExtra("text", text);
+            intent.putExtra("polyline", lineOptions);
+            activity.sendBroadcast(intent);
+            // Drawing polyline in the Google Map for the i-th route
+        }
     }
 }

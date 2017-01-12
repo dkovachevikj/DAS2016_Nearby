@@ -23,6 +23,7 @@ public class ReviewsListActivity extends AppCompatActivity {
     ListView listView;
     Review[] reviews;
     ArrayList<Review> pomosna;
+    private String placeId;
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -48,6 +49,9 @@ public class ReviewsListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reviews_list);
+
+        placeId = getIntent().getExtras().getString("id");
+
         new TestConnection(this).getReviews();
         Bundle extras=getIntent().getExtras();
        /* if(extras!=null) {

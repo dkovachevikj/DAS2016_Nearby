@@ -1,8 +1,13 @@
 package com.dmgremlins.nearby;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +20,21 @@ import com.google.android.gms.maps.model.PolylineOptions;
 public class GetDirectionsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private String text;
+    private PolylineOptions polylineOptions;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().compareTo("Polyline") == 0) {
+                text = intent.getExtras().getString("text");
+                polylineOptions = (PolylineOptions) intent.getExtras().get("polyline");
+                mMap.addPolyline(polylineOptions.color(Color.RED).width(5));
+                mMap.addMarker(new MarkerOptions().position((LatLng) getIntent().getExtras().get("userLatLng")).title("Me"));
+                mMap.addMarker(new MarkerOptions().position((LatLng) getIntent().getExtras().get("placeLatLng")).title(getIntent().getExtras().getString("name")));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((LatLng) getIntent().getExtras().get("userLatLng"), 15f));
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,17 +59,20 @@ public class GetDirectionsActivity extends FragmentActivity implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        setFilter();
+    }
 
-        // Add a marker in Sydney and move the camera
-        LatLng myLocation = new LatLng(42.004408, 21.409509);
-        mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
-        LatLng place = (LatLng) getIntent().getExtras().get("latlng");
-        String name = (String) getIntent().getExtras().get("name");
-        mMap.addMarker(new MarkerOptions().position(place).title(name));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 12f));
-        mMap.addPolyline(new PolylineOptions().add(
-                myLocation,
-                place
-        ).width(1f).color(Color.RED));
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        Log.d("GetDirectionsActivity","Broadcast unregistered");
+    }
+
+    private void setFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("Polyline");
+        registerReceiver(broadcastReceiver, filter);
+        Log.d("GetDirectionsActivity","Broadcast registered");
     }
 }

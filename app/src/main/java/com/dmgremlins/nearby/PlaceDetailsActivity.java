@@ -81,7 +81,6 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
 
         setFields();
         placeLatLng = (LatLng) getIntent().getExtras().get("latLng");
-        Toast.makeText(this, placeLatLng.latitude + " " + placeLatLng.longitude, Toast.LENGTH_SHORT).show();
     }
 
     private void setWriteReviewButtonListener() {
@@ -98,7 +97,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
             @Override
             public void onClick(View v) {
                 if(placeLatLng != null) {
-                    eventHandler.getDirections(placeLatLng, getIntent().getExtras().getString("name"));
+                    eventHandler.getDirections(new LatLng(42.004408, 21.409509), (LatLng) getIntent().getExtras().get("latLng"), getIntent().getExtras().getString("name"));
                 }
             }
         });
@@ -108,7 +107,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         reviewsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                eventHandler.getReviews("");
+                eventHandler.getReviews();
             }
         });
     }

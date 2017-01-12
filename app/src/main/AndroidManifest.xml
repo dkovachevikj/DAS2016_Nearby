@@ -47,6 +47,8 @@
             android:name=".PlaceDetailsActivity"
             android:label="@string/title_activity_place_details" />
 
+        <service android:name=".LocationService" android:enabled="true"></service>
+
 
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
