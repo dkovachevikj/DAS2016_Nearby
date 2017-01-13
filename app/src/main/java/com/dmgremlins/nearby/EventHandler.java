@@ -50,12 +50,12 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static android.content.Context.LOCATION_SERVICE;
-
+import com.dmgremlins.nearby.command_pattern.NearbyEventBus;
 
 public class EventHandler implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, NearbyEventBus {
 
     //necessary variables used in methods
     private static final int LOCATIONS_TYPE = 1;
@@ -156,6 +156,7 @@ public class EventHandler implements
     }
 
     // used to get locations from a specific category (restaurants, banks, bars etc.)
+    @Override
     public void getLocations(String type) {
         buildGoogleApiClient(LOCATIONS_TYPE);
         String url = "https://maps.googleapis.com/maps/";
@@ -165,7 +166,7 @@ public class EventHandler implements
                 .build();
 
         RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-        Call<Example> call = service.getNearbyPlaces(type, latitude + "," + longitude, PROXIMITY_RADIUS);
+        Call<Example> call = service.getNearbyPlaces(type, 42.004408 + "," + 21.409509, PROXIMITY_RADIUS);
         call.enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Response<Example> response, Retrofit retrofit) {
@@ -197,6 +198,7 @@ public class EventHandler implements
     }
 
     // gets details for the selected place (name, address, phone number, ratings etc.)
+    @Override
     public void getPlaceDetails(String placeId) {
         buildGoogleApiClient(PLACES_TYPE);
         PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId);
@@ -252,6 +254,7 @@ public class EventHandler implements
     }
 
     // gets reviews for a specific place from the database
+    @Override
     public void getReviews() {
         Intent intent = new Intent(activity, ReviewsListActivity.class);
         intent.putExtra("id", currentPlaceID);
@@ -259,6 +262,7 @@ public class EventHandler implements
     }
 
     // adds a user written review for a specific place to the database
+    @Override
     public void addReview() {
         Intent intent = new Intent(activity, WriteReviewActivity.class);
         intent.putExtra("id", currentPlaceID);
@@ -266,15 +270,16 @@ public class EventHandler implements
     }
 
     // gets directions from the user's current location to the selected place on Google Maps
+    @Override
     public void getDirections(LatLng place, String name) {
         Intent intent = new Intent(activity, GetDirectionsActivity.class);
-        String url = getDirectionsUrl(new LatLng(latitude, longitude), place);
+        String url = getDirectionsUrl(new LatLng(42.004408, 21.409590), place);
 
         DownloadTask downloadTask = new DownloadTask();
 
         // Start downloading json data from Google Directions API
         downloadTask.execute(url);
-        intent.putExtra("userLatLng", new LatLng(latitude, longitude));
+        intent.putExtra("userLatLng", new LatLng(42.004408, 21.409509));
         intent.putExtra("placeLatLng", place);
         intent.putExtra("name", name);
         activity.startActivity(intent);

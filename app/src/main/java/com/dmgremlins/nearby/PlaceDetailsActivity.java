@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.dmgremlins.nearby.command_pattern.AddReview;
+import com.dmgremlins.nearby.command_pattern.GetDirections;
+import com.dmgremlins.nearby.command_pattern.GetReviews;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,12 +31,15 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
 
     private GoogleMap mMap;
 
-    Button reviewsButton;
-    Button getDirectionsButton;
-    Button writeReviewButton;
-    LatLng placeLatLng;
+    private Button reviewsButton;
+    private Button getDirectionsButton;
+    private Button writeReviewButton;
+    private LatLng placeLatLng;
 
     private EventHandler eventHandler;
+    private AddReview addReview;
+    private GetDirections getDirections;
+    private GetReviews getReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +69,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         writeReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                eventHandler.addReview();
+                addReview = new AddReview(eventHandler);
+                addReview.execute();
             }
         });
     }
@@ -73,7 +80,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
             @Override
             public void onClick(View v) {
                 if(placeLatLng != null) {
-                    eventHandler.getDirections((LatLng) getIntent().getExtras().get("latLng"), getIntent().getExtras().getString("name"));
+                    getDirections = new GetDirections(eventHandler, (LatLng) getIntent().getExtras().get("latLng"), getIntent().getExtras().getString("name"));
+                    getDirections.execute();
                 }
             }
         });
@@ -83,7 +91,8 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         reviewsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                eventHandler.getReviews();
+                getReviews = new GetReviews(eventHandler);
+                getReviews.execute();
             }
         });
     }

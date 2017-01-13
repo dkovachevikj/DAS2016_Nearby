@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.dmgremlins.nearby.command_pattern.GetLocations;
+
 import java.util.ArrayList;
 
 public class LocationTypesActivity extends AppCompatActivity {
@@ -17,6 +19,7 @@ public class LocationTypesActivity extends AppCompatActivity {
     private ArrayList<GridItem> items;
     //reference to EventHandler
     private EventHandler eventHandler;
+    private GetLocations getLocations;
 
     /*
         since for this version of the app we are only using a set amount of
@@ -49,7 +52,7 @@ public class LocationTypesActivity extends AppCompatActivity {
          */
         eventHandler = EventHandler.getInstance();
         eventHandler.setActivity(LocationTypesActivity.this);
-        eventHandler.setLocationUpdates();
+        //eventHandler.setLocationUpdates();
 
         setGridItemListener();
 
@@ -64,7 +67,8 @@ public class LocationTypesActivity extends AppCompatActivity {
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
                 //Toast.makeText(LocationTypesActivity.this, "Longitude: " + longitude + ", Latitude: " + latitude, Toast.LENGTH_SHORT).show();
                 String type = item.getTitle().toLowerCase();
-                eventHandler.getLocations(type);
+                getLocations = new GetLocations(eventHandler, type);
+                getLocations.execute();
             }
         });
     }

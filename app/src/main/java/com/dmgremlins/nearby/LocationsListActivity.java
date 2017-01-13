@@ -8,6 +8,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.dmgremlins.nearby.command_pattern.GetPlaceDetails;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ public class LocationsListActivity extends AppCompatActivity {
     private HashMap<String, String> locations;
     //reference to EventHandler
     private EventHandler eventHandler;
+    private GetPlaceDetails getPlaceDetails;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +70,8 @@ public class LocationsListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String title = (String) parent.getItemAtPosition(position);
                 String idString = locations.get(title);
-                eventHandler.getPlaceDetails(idString);
+                getPlaceDetails = new GetPlaceDetails(eventHandler, idString);
+                getPlaceDetails.execute();
                 /** Intent intent = new Intent(LocationsListActivity.this, PlaceDetailsActivity.class);
                 intent.putExtra("id", idString);
                 startActivity(intent); **/
