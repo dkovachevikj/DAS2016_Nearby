@@ -12,13 +12,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by User on 11/27/2016.
+/*
+    takes care of filling the grid that will contain elements
+    consisting of a location category name and an associated image
+    with those elements
  */
-
 public class GridViewAdapter extends ArrayAdapter<GridItem> {
 
-    //private final ColorMatrixColorFilter grayscaleFilter;
     private Context mContext;
     private int layoutResourceId;
     private ArrayList<GridItem> mGridData = new ArrayList<GridItem>();

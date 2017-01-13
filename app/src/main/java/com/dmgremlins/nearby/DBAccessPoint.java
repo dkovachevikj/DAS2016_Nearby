@@ -1,4 +1,5 @@
 package com.dmgremlins.nearby;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -7,11 +8,7 @@ import android.util.Log;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Random;
 
-/**
- * Created by Nacev on 08.01.2017.
- */
 public class DBAccessPoint {
 
     protected Activity activity;

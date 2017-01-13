@@ -2,10 +2,7 @@ package com.dmgremlins.nearby;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -16,7 +13,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,14 +22,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.games.event.Event;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -58,15 +51,13 @@ import retrofit.Retrofit;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-/**
- * Created by User on 1/9/2017.
- */
 
 public class EventHandler implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    //necessary variables used in methods
     private static final int LOCATIONS_TYPE = 1;
     private static final int PLACES_TYPE = 2;
     private static EventHandler eventHandler;
@@ -81,15 +72,9 @@ public class EventHandler implements
     private int PROXIMITY_RADIUS = 5000;
     private final String TAG = "EventHandler";
     private String currentPlaceID;
-    /** private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Location acquired", Toast.LENGTH_SHORT).show();
-            latitude = intent.getExtras().getDouble("latitude");
-            longitude = intent.getExtras().getDouble("longitude");
-        }
-    }; **/
 
+    //get an instance of EventHandler
+    //singleton pattern
     public static EventHandler getInstance() {
         if(eventHandler == null) {
             eventHandler = new EventHandler();
@@ -97,17 +82,60 @@ public class EventHandler implements
         return eventHandler;
     }
 
+    /* sets the current Activity (category view, locations, place details etc.
+     * necessary for some operations that require an application context
+     * and because EventHandler doesn't extend Activity or any subclasses of Activity
+     */
     public void setActivity(Activity activity) {
-        /** if(this.activity == null) {
-            activity.startService(new Intent(activity.getApplicationContext(), LocationService.class));
-            IntentFilter filter = new IntentFilter();
-            filter.addAction("UpdateLocation");
-            activity.registerReceiver(broadcastReceiver, filter);
-            Log.d(TAG,"Broadcast registered");
-        } **/
         this.activity = activity;
     }
 
+    //sets up code for location updates
+    public void setLocationUpdates() {
+        lm = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
+        listener = new android.location.LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                activity.startActivity(i);
+            }
+        };
+        requestLocationUpdates();
+    }
+
+    //requests location updates every 5 seconds
+    public void requestLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                activity.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}
+                        ,10);
+            }
+            return;
+        }
+        lm.requestLocationUpdates("gps", 5000, 0, listener);
+
+    }
+
+    /* builds two types of GoogleApiClient
+     * one for locations search
+     * other for place search
+     */
     protected synchronized void buildGoogleApiClient(int type) {
         if(type == LOCATIONS_TYPE) {
             mGoogleApiClient = new GoogleApiClient.Builder(activity)
@@ -127,6 +155,7 @@ public class EventHandler implements
         }
     }
 
+    // used to get locations from a specific category (restaurants, banks, bars etc.)
     public void getLocations(String type) {
         buildGoogleApiClient(LOCATIONS_TYPE);
         String url = "https://maps.googleapis.com/maps/";
@@ -136,7 +165,7 @@ public class EventHandler implements
                 .build();
 
         RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-        Call<Example> call = service.getNearbyPlaces(type, 42.004408 + "," + 21.409509, PROXIMITY_RADIUS);
+        Call<Example> call = service.getNearbyPlaces(type, latitude + "," + longitude, PROXIMITY_RADIUS);
         call.enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Response<Example> response, Retrofit retrofit) {
@@ -167,6 +196,7 @@ public class EventHandler implements
         }
     }
 
+    // gets details for the selected place (name, address, phone number, ratings etc.)
     public void getPlaceDetails(String placeId) {
         buildGoogleApiClient(PLACES_TYPE);
         PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId);
@@ -221,27 +251,30 @@ public class EventHandler implements
         });
     }
 
+    // gets reviews for a specific place from the database
     public void getReviews() {
         Intent intent = new Intent(activity, ReviewsListActivity.class);
         intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
     }
 
+    // adds a user written review for a specific place to the database
     public void addReview() {
         Intent intent = new Intent(activity, WriteReviewActivity.class);
         intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
     }
 
-    public void getDirections(LatLng user, LatLng place, String name) {
+    // gets directions from the user's current location to the selected place on Google Maps
+    public void getDirections(LatLng place, String name) {
         Intent intent = new Intent(activity, GetDirectionsActivity.class);
-        String url = getDirectionsUrl(user, place);
+        String url = getDirectionsUrl(new LatLng(latitude, longitude), place);
 
         DownloadTask downloadTask = new DownloadTask();
 
         // Start downloading json data from Google Directions API
         downloadTask.execute(url);
-        intent.putExtra("userLatLng", user);
+        intent.putExtra("userLatLng", new LatLng(latitude, longitude));
         intent.putExtra("placeLatLng", place);
         intent.putExtra("name", name);
         activity.startActivity(intent);
@@ -266,6 +299,15 @@ public class EventHandler implements
     public void onLocationChanged(Location location) {
 
     }
+
+    /* the methods and private classes below are used to get a polyline
+     * that will go from the user's current position to
+     * the selected place
+     * and then it sends that polyline (PolylineOptions object)
+     * to the GetDirectionsActivity through an intent
+     * just like the locations, reviews etc. that are sent
+     * to the other activities through an intent
+     */
 
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
 

@@ -75,4 +75,5 @@ public class GetDirectionsActivity extends FragmentActivity implements OnMapRead
         registerReceiver(broadcastReceiver, filter);
         Log.d("GetDirectionsActivity","Broadcast registered");
     }
+
 }

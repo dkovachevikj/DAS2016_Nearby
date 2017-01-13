@@ -12,10 +12,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Nacev on 08.01.2017.
- */
-
 public class ReviewsListActivity extends AppCompatActivity {
 
     ListView listView;
@@ -30,12 +26,9 @@ public class ReviewsListActivity extends AppCompatActivity {
             pomosna=(ArrayList<Review>)intent.getExtras().get("Reviews");
             reviews = new Review[pomosna.size()];
             for(int i = 0; i < pomosna.size(); i++) {
-                //String userName = "John Smith";
                 String userName=pomosna.get(i).getUserName();
-                //float rating = 2.5f;
                 float rating=pomosna.get(i).getRating();
                 String desc=pomosna.get(i).getDesc();
-                //String desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...";
                 reviews[i] = new Review(userName, rating, desc);
             }
             ReviewsListAdapter adapter = new ReviewsListAdapter(getApplicationContext(), reviews);

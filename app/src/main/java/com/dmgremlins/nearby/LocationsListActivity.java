@@ -1,43 +1,29 @@
 package com.dmgremlins.nearby;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.google.android.gms.games.event.Event;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceDetectionApi;
-
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-/**
- * Created by User on 11/27/2016.
- */
 
 
 public class LocationsListActivity extends AppCompatActivity {
 
+    //contans reference to the ListView object in the .xml file
     ListView locationsListView;
+    /*
+        locations HashMap contains the locations's name and id
+        so when the user selects a location it's id can be quickly acquired and
+        sent to the EventHandler
+     */
     private HashMap<String, String> locations;
+    //reference to EventHandler
     private EventHandler eventHandler;
 
     @Override
@@ -46,6 +32,11 @@ public class LocationsListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_locations_list);
         eventHandler = EventHandler.getInstance();
         eventHandler.setActivity(LocationsListActivity.this);
+        setUpLocationsList();
+    }
+
+    //sets up the locations list, gets the locations's name and id from the intent extras
+    private void setUpLocationsList() {
         locations = new HashMap<>();
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -63,9 +54,13 @@ public class LocationsListActivity extends AppCompatActivity {
             locationsListView.setAdapter(adapter);
 
             setListClickListener();
-         }
         }
+    }
 
+    /*
+        listens for a tap on the locations list
+        and sends the location id to the EventHandler
+     */
     private void setListClickListener() {
         locationsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -2,10 +2,10 @@ package com.dmgremlins.nearby;
 
 import java.io.Serializable;
 
-/**
- * Created by User on 11/28/2016.
+/*
+    Review contains the elements of a review for a
+    specific location that is put in the database
  */
-
 public class Review implements Serializable{
 
     private String userName;

@@ -1,9 +1,9 @@
 package com.dmgremlins.nearby;
 
-/**
- * Created by User on 11/27/2016.
+/*
+    this class contains the name of a location category
+    and an associated image
  */
-
 public class GridItem {
     private int image;
     private String title;

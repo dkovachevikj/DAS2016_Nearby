@@ -1,6 +1,5 @@
 package com.dmgremlins.nearby;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -12,25 +11,22 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
-/**
- * Created by User on 12/11/2016.
- */
-
 public class WriteReviewActivity extends AppCompatActivity{
 
+    /*
+        these reference elements from the interface
+        such as a text box (EditText) or a rating bar
+     */
     private EditText reviewText;
     private String placeId;
     private EditText usernameText;
     private RatingBar rating;
     private Button sendReview;
-    private int reviewWordCount;
-    private Activity activity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write_review);
-        activity=this;
 
         placeId = getIntent().getExtras().getString("id");
 
@@ -38,17 +34,32 @@ public class WriteReviewActivity extends AppCompatActivity{
         usernameText = (EditText) findViewById(R.id.usernameEditText);
         rating= (RatingBar) findViewById(R.id.ratingBar2);
         sendReview=(Button) findViewById(R.id.sendReviewButton);
-        setReviewTextTextChangedListener();
 
+        setReviewTextTextChangedListener();
+        setSendReviewClickListener();
+
+    }
+
+    /*
+        sets a listener for a tap on the Send button
+        then sends the values from the text boxes and ratings bar
+        to DBAccessPoint which will send them to the database
+     */
+    private void setSendReviewClickListener() {
         sendReview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                new DBAccessPoint(activity).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString(),placeId);
+                new DBAccessPoint(WriteReviewActivity.this).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString(),placeId);
                 Toast.makeText(WriteReviewActivity.this, "REVIEW SAVED!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    /*
+        checks if the review text gets over the limit
+        of 100 characters, if so it informs the user
+        (the limit is set in the .xml file code)
+     */
     private void setReviewTextTextChangedListener() {
         reviewText.addTextChangedListener(new TextWatcher() {
             @Override

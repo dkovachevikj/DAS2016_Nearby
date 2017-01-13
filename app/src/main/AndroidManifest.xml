@@ -29,7 +29,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".LocationTypesActivity"
             android:label="Categories">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,8 +46,6 @@
         <activity
             android:name=".PlaceDetailsActivity"
             android:label="@string/title_activity_place_details" />
-
-        <service android:name=".LocationService" android:enabled="true"></service>
 
 
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for

@@ -1,13 +1,14 @@
 package com.dmgremlins.nearby;
 
-/**
- * Created by User on 11/26/2016.
- */
 import android.app.Service;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+/*
+    detects if the device is
+    connected to the internet
+ */
 public class ConnectionDetector {
 
     Context context;

@@ -14,6 +14,12 @@ import java.util.List;
  * Created by User on 1/12/2017.
  */
 
+/*
+    this class parses the json string that
+    will contain the dots from which the polyline that
+    will give the directions between the current user location
+    and the selected place location will consist of
+ */
 public class DirectionsJSONParser {
 
     /**

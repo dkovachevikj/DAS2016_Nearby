@@ -8,15 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.Random;
 
 
-/**
- * Created by User on 11/27/2016.
+/*
+    takes care of filling the list that will contain
+    locations from a specific category with those locations
  */
-
 public class LocationsListAdapter extends ArrayAdapter<String> {
 
     Random random;

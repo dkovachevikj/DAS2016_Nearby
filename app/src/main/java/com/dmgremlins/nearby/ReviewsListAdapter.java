@@ -9,12 +9,11 @@ import android.widget.ArrayAdapter;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 
-/**
- * Created by User on 11/27/2016.
+/*
+    an adapter that takes care of filling the list that
+    will contain the reviews for a specific location with those reviews
  */
-
 public class ReviewsListAdapter extends ArrayAdapter<Review> {
 
     public ReviewsListAdapter(Context context, Review[] reviews) {
