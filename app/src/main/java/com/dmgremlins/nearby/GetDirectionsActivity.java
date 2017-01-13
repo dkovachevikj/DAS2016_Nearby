@@ -19,9 +19,19 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 public class GetDirectionsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    //fields referencing to interface elements
     private GoogleMap mMap;
     private String text;
+    /*
+        polyline that will be referencing the polyline
+        that goes from the current user location to
+        the place coordinates, once it's available
+     */
     private PolylineOptions polylineOptions;
+    /*
+        listens for a broadcasted intent that will
+        contain the polyline and sets the map
+     */
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -69,6 +79,7 @@ public class GetDirectionsActivity extends FragmentActivity implements OnMapRead
         Log.d("GetDirectionsActivity","Broadcast unregistered");
     }
 
+    //sets up the filter needed for the BroadcastReceiver object
     private void setFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction("Polyline");

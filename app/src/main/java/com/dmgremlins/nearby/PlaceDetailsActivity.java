@@ -31,11 +31,13 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
 
     private GoogleMap mMap;
 
+    //buttons from interface
     private Button reviewsButton;
     private Button getDirectionsButton;
     private Button writeReviewButton;
     private LatLng placeLatLng;
 
+    //reference to EventHandler and command subclasses
     private EventHandler eventHandler;
     private AddReview addReview;
     private GetDirections getDirections;
@@ -65,6 +67,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         placeLatLng = (LatLng) getIntent().getExtras().get("latLng");
     }
 
+    //listens for tap on Write review button then calls EventHandler method through command subclass
     private void setWriteReviewButtonListener() {
         writeReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +78,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         });
     }
 
+    //listens for tap on Get directions button then calls EventHandler method through command subclass
     private void setGetDirectionsButtonListener() {
         getDirectionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +91,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         });
     }
 
+    //listens for tap on Get reviews button then calls EventHandler method through command subclass
     private void setReviewsButtonListener() {
         reviewsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,6 +102,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         });
     }
 
+    //sets fields from interface that show name, address, rating etc.
     private void setFields() {
         TextView title = (TextView) findViewById(R.id.placeDetailsTitle);
         TextView address = (TextView) findViewById(R.id.placeDetailsAddress);
@@ -129,6 +135,7 @@ public class PlaceDetailsActivity extends FragmentActivity implements OnMapReady
         updateMap();
     }
 
+    //updates the map with the place location (puts marker)
     private void updateMap() {
             mMap.addMarker(new MarkerOptions().position(placeLatLng).title(""));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLatLng, 14.0f));

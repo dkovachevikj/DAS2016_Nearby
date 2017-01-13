@@ -17,7 +17,7 @@ import java.util.List;
 
 public class LocationsListActivity extends AppCompatActivity {
 
-    //contans reference to the ListView object in the .xml file
+    //contains reference to the ListView object in the .xml file
     ListView locationsListView;
     /*
         locations HashMap contains the locations's name and id
@@ -27,6 +27,7 @@ public class LocationsListActivity extends AppCompatActivity {
     private HashMap<String, String> locations;
     //reference to EventHandler
     private EventHandler eventHandler;
+    //refernce to GetPlaceDetails command subclass
     private GetPlaceDetails getPlaceDetails;
 
     @Override
@@ -62,7 +63,7 @@ public class LocationsListActivity extends AppCompatActivity {
 
     /*
         listens for a tap on the locations list
-        and sends the location id to the EventHandler
+        and sends the location id to the EventHandler (through command subclass
      */
     private void setListClickListener() {
         locationsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

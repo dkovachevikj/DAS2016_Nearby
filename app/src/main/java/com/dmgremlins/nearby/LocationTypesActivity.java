@@ -19,6 +19,7 @@ public class LocationTypesActivity extends AppCompatActivity {
     private ArrayList<GridItem> items;
     //reference to EventHandler
     private EventHandler eventHandler;
+    //reference to GetLocations subclass
     private GetLocations getLocations;
 
     /*
@@ -58,7 +59,7 @@ public class LocationTypesActivity extends AppCompatActivity {
 
     }
 
-    //listens for a tap on an grid item, then sends the location type to EventHandler
+    //listens for a tap on an grid item, then sends the location type to EventHandler (using command subclass)
     private void setGridItemListener() {
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 

@@ -129,7 +129,11 @@ public class EventHandler implements
             return;
         }
         lm.requestLocationUpdates("gps", 5000, 0, listener);
+    }
 
+    public boolean checkConnection() {
+        cd = new ConnectionDetector(activity);
+        return cd.isConnected();
     }
 
     /* builds two types of GoogleApiClient
@@ -158,6 +162,10 @@ public class EventHandler implements
     // used to get locations from a specific category (restaurants, banks, bars etc.)
     @Override
     public void getLocations(String type) {
+        if(!checkConnection()) {
+            Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         buildGoogleApiClient(LOCATIONS_TYPE);
         String url = "https://maps.googleapis.com/maps/";
         Retrofit retrofit = new Retrofit.Builder()
@@ -200,6 +208,10 @@ public class EventHandler implements
     // gets details for the selected place (name, address, phone number, ratings etc.)
     @Override
     public void getPlaceDetails(String placeId) {
+        if(!checkConnection()) {
+            Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         buildGoogleApiClient(PLACES_TYPE);
         PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId);
         placeResult.setResultCallback(new ResultCallback<PlaceBuffer>() {
@@ -256,6 +268,10 @@ public class EventHandler implements
     // gets reviews for a specific place from the database
     @Override
     public void getReviews() {
+        if(!checkConnection()) {
+            Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(activity, ReviewsListActivity.class);
         intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
@@ -264,6 +280,10 @@ public class EventHandler implements
     // adds a user written review for a specific place to the database
     @Override
     public void addReview() {
+        if(!checkConnection()) {
+            Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(activity, WriteReviewActivity.class);
         intent.putExtra("id", currentPlaceID);
         activity.startActivity(intent);
@@ -272,6 +292,10 @@ public class EventHandler implements
     // gets directions from the user's current location to the selected place on Google Maps
     @Override
     public void getDirections(LatLng place, String name) {
+        if(!checkConnection()) {
+            Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(activity, GetDirectionsActivity.class);
         String url = getDirectionsUrl(new LatLng(42.004408, 21.409590), place);
 
