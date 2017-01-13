@@ -18,16 +18,10 @@
 ### Погледи на апликацијата
 
 ![alt text](Images/Image1.jpg "Слика 1. Основен изглед на апликацијата")
-
 ![alt text](Images/Image2.jpg "Слика 2. Приказ на локации")
-
 ![alt text](Images/Image3.jpg "Слика 3. Детален приказ за избраната локација")
-
 ![alt text](Images/Image4.jpg "Слика 4. Get Directions")
-
 ![alt text](Images/Image5.jpg "Слика 5. Write Review")
-
-![alt text](Images/Image5.jpg "Слика 6. Reviews")
-
+![alt text](Images/Image6.jpg "Слика 6. Reviews")
 
 Project for Software Design and Architecture course @ FCSE/FINKI
