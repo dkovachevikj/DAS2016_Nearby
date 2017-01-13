@@ -21,4 +21,5 @@
 ![alt text](Images/Image3.jpg "Слика 3. Детален приказ за избраната локација")  ![alt text](Images/Image4.jpg "Слика 4. Get Directions")
 ![alt text](Images/Image5.jpg "Слика 5. Write Review")  ![alt text](Images/Image6.jpg "Слика 6. Reviews")
 
+*Забелешка: Апликацијата работи моментално со фиксни координати на ТМФ, се испраќаат моменталните Longitude i Lattitude на корисникот, но не успеавме да го средиме проблемот, заради АPI key-то 
 Project for Software Design and Architecture course @ FCSE/FINKI
