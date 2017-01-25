@@ -22,6 +22,7 @@ public class WriteReviewActivity extends AppCompatActivity{
     private EditText usernameText;
     private RatingBar rating;
     private Button sendReview;
+    private EventHandler eventHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,14 +44,16 @@ public class WriteReviewActivity extends AppCompatActivity{
     /*
         sets a listener for a tap on the Send button
         then sends the values from the text boxes and ratings bar
-        to DBAccessPoint which will send them to the database
+        to EventHandler which will send them to the database through DBAccessPoint
      */
     private void setSendReviewClickListener() {
         sendReview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                new DBAccessPoint(WriteReviewActivity.this).insertReview(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString(),placeId);
-                Toast.makeText(WriteReviewActivity.this, "REVIEW SAVED!", Toast.LENGTH_SHORT).show();
+                eventHandler = EventHandler.getInstance();
+                eventHandler.setActivity(WriteReviewActivity.this);
+                eventHandler.updateDB(usernameText.getText().toString(),rating.getRating(),reviewText.getText().toString(),placeId);
+
             }
         });
     }

@@ -14,10 +14,21 @@ public class DBAccessPoint {
     protected Activity activity;
     public ArrayList<Review> reviews;
     private boolean flag;
+    private static DBAccessPoint dbAccessPoint;
 
-    public DBAccessPoint(Activity activity){
+    public static DBAccessPoint getInstance() {
+        if(dbAccessPoint == null) {
+            dbAccessPoint = new DBAccessPoint();
+        }
+        return dbAccessPoint;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
+    public DBAccessPoint(){
         flag=false;
-        this.activity=activity;
         reviews=new ArrayList<Review>();
     }
 private class WorkerThread extends AsyncTask<String,Void,Void> {

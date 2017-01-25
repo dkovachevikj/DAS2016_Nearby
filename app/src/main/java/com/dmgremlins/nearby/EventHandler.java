@@ -2,7 +2,10 @@ package com.dmgremlins.nearby;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -15,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dmgremlins.nearby.POJO.Example;
@@ -72,6 +76,33 @@ public class EventHandler implements
     private int PROXIMITY_RADIUS = 5000;
     private final String TAG = "EventHandler";
     private String currentPlaceID;
+
+    private ArrayList<Review> pomosna;
+    private ListView listView;
+    private Review[] reviews;
+    private DBAccessPoint dbAccessPoint;
+
+    /*
+        broadcast receiver that listens for an intent sent by DBAccessPoint
+        once it acquires the reviews from the specific location
+     */
+    BroadcastReceiver reviewsListReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("ReviewsListActivity","Received broadcast");
+            pomosna=(ArrayList<Review>)intent.getExtras().get("Reviews");
+            reviews = new Review[pomosna.size()];
+            for(int i = 0; i < pomosna.size(); i++) {
+                String userName=pomosna.get(i).getUserName();
+                float rating=pomosna.get(i).getRating();
+                String desc=pomosna.get(i).getDesc();
+                reviews[i] = new Review(userName, rating, desc);
+            }
+            initReviewsListActivity();
+        }
+    };
+
+
 
     //get an instance of EventHandler
     //singleton pattern
@@ -272,9 +303,32 @@ public class EventHandler implements
             Toast.makeText(activity, "Please turn mobile data or WiFi on", Toast.LENGTH_SHORT).show();
             return;
         }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("ReviewsFilledWithInformation");
+        activity.registerReceiver(reviewsListReciever, filter);
+        Log.d("ReviewsListActivity","Broadcast registered");
+
+        dbAccessPoint = DBAccessPoint.getInstance();
+        dbAccessPoint.setActivity(activity);
+        dbAccessPoint.getReviews(currentPlaceID);
+    }
+
+    //initiates ReviewsListActivity once the reviews are pulled from the database
+    private void initReviewsListActivity() {
+        activity.unregisterReceiver(reviewsListReciever);
+        Log.d("ReviewsListActivity","Broadcast unregistered");
+
         Intent intent = new Intent(activity, ReviewsListActivity.class);
-        intent.putExtra("id", currentPlaceID);
+        intent.putExtra("reviews", reviews);
         activity.startActivity(intent);
+    }
+
+    //updates database with a new review
+    public void updateDB(String username, float rating, String review, String id) {
+        dbAccessPoint = DBAccessPoint.getInstance();
+        dbAccessPoint.setActivity(activity);
+        dbAccessPoint.insertReview(username, rating, review, id);
+        Toast.makeText(activity, "REVIEW SAVED!", Toast.LENGTH_SHORT).show();
     }
 
     // adds a user written review for a specific place to the database
